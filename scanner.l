@@ -9,9 +9,10 @@
  * Editor		: vim 7.2 for WIN 
  * Integration Tests	: linux2.csie.ntu.edu.tw
  * Flex			: 2.5.35
- * Compiler		: gcc (Debian 4.4.3-3) 4.4.3
- * Version Control	: TortoiseSVN 1.6.7, Build 18415 - 32 Bit
- * Project Hosting	: http://code.google.com/p/c-source-scanner/
+ * Bison		: bison (GNU Bison) 2.4.1
+ * Compiler		: gcc (Debian 4.4.4-1) 4.4.4
+ * Version Control	: TortoiseSVN 1.6.8, Build 19260 - 32 Bit
+ * Project Hosting	: http://code.google.com/p/csie-parser/
  *
  =================================================================================
  */
