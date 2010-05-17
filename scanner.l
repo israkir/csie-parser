@@ -38,7 +38,7 @@ LETTER			[A-Za-z]
 DELIMITER		[ \t\n]
 
 	/* IDENTIFIER: starting with a letter; following by any occurence of letter, digit or underscore */
-IDENTIFIER		([_a-zA-Z]|{UCN})([_a-zA-Z0-9]|{UCN})*
+IDENTIFIER		[a-zA-Z_][a-zA-Z0-9_]*
 
 	/* INTEGER: 0 or more occurence of consecutive digits */
 INTEGER			{DIGIT}+(\.{DIGIT}+)?(E[+-]?{DIGIT}+)?
@@ -52,9 +52,31 @@ COMMENT			("/*"([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*"*"+"/")|("//".*)
 
 %%	/* ----- RULES PART ----- */
 
+	/* rules for operators */
+"||"			{ yylval = atoi(yytext); return OR; }
+"&&"			{ yylval = atoi(yytext); return AND; }
+"!"			{ yylval = atoi(yytext); return NOT; }
+">"			{ yylval = atoi(yytext); return GREATERTHAN; }
+">="			{ yylval = atoi(yytext); return GREATEREQ; }
+"<"			{ yylval = atoi(yytext); return LESSTHAN; }
+"<="			{ yylval = atoi(yytext); return LESSEQ; }
+"=="			{ yylval = atoi(yytext); return EQUAL; }
+"!="			{ yylval = atoi(yytext); return NOTEQ; }
 
-	/* RULES FOR LITERALS */
-	/* ------------------ */
+	/* rules for keywords */
+"int"			{ yylval = atoi(yytext); return INTSYM; }
+"if"			{ yylval = atoi(yytext); return IFSYM; }
+"else"			{ yylval = atoi(yytext); return ELSESYM; }
+"while"			{ yylval = atoi(yytext); return WHILESYM; }
+"break"			{ yylval = atoi(yytext); return BREAKSYM; }
+"continue"		{ yylval = atoi(yytext); return CONTINUESYM; }
+"scan"			{ yylval = atoi(yytext); return SCANSYM; }
+"print"			{ yylval = atoi(yytext); return PRINTSYM; }
+
+	/* rules for identifiers */
+{IDENTIFIER}		{ yylval = atoi(yytext); return ID; }
+
+	/* rules for literals */
 {INTEGER}		{ yylval = atoi(yytext); return NUMBER; }
 
 	/* ignore any kind of white space; i.e. no 'action'! */

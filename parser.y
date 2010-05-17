@@ -25,34 +25,87 @@
   #include <stdio.h>
 %}
 
-%token NUMBER
-%nonassoc '{' '}'
+%token ID NUMBER INTSYM IFSYM ELSESYM WHILESYM BREAKSYM CONTINUESYM SCANSYM PRINTSYM GREATERTHAN GREATEREQ LESSTHAN LESSEQ EQUAL NOTEQ
+%nonassoc '{' '}' '[' ']' ';' ','
+%right '='
+%left OR
+%left AND
 %left '+' '-'
 %left '*' '/'
+%right NOT
+%left '(' ')'
 %right NEG
 
 
 %%	/* ----- GRAMMAR RULES PART ----- */
 	/* ============================== */
 
-program		: /* empty */
+program		: /* lambda */
 		| program blockStmt
 		;
 			
-blockStmt	: '{' stmt '}'
+blockStmt	: '{' varDeclInit stmtInit '}'
+		;
+
+varDeclInit	: /* lambda */
+	 	| INTSYM intArrayInit ID idList ';' varDeclInit
+	 	;
+
+intArrayInit	: /* lambda */
+	  	| '[' NUMBER ']' intArrayInit 
+		;
+
+idList		: /* lambda */
+		| ',' ID idList
 		;
 			
-stmt		: arithExpr ';'			{ printf ("\t%.10g\n", $1); }
+var		: ID arithExprInit
+     		;
+
+varList		: /* lambda */
+	 	| ',' var varList
+	 	;
+
+arithExprInit	: /* lambda */
+	      	| '[' arithExpr ']' arithExprInit
+		;
+
+arithExprList	: /* lambda */
+	      	| ',' arithExpr arithExprList
+	      	;
+
+stmtInit	: /* lambda */
+      		| var '=' arithExpr ';' stmtInit
+		| IFSYM '(' boolExpr ')' blockStmt stmtInit
+		| IFSYM '(' boolExpr ')' blockStmt ELSESYM blockStmt stmtInit
+		| WHILESYM '(' boolExpr ')' blockStmt stmtInit
+		| BREAKSYM ';' stmtInit
+		| CONTINUESYM ';' stmtInit
+		| SCANSYM '(' var varList ')' ';' stmtInit
+		| PRINTSYM '(' arithExpr arithExprList ')' ';' stmtInit
+		| blockStmt stmtInit
 		;
 		
-arithExpr	: NUMBER			{ $$ = $1;          }
-		| arithExpr '+' arithExpr	{ $$ = $1 + $3;     }
-		| arithExpr '-' arithExpr	{ $$ = $1 - $3;     }
-		| arithExpr '*' arithExpr	{ $$ = $1 * $3;     }
-		| arithExpr '/' arithExpr	{ $$ = $1 / $3;     } 
-		| '+' arithExpr			{ $$ = +$2;         }
-		| '-' arithExpr %prec NEG	{ $$ = -$2;         }
-		| '(' arithExpr ')'		{ $$ = $2;          }
+arithExpr	: arithExpr '+' arithExpr
+		| arithExpr '-' arithExpr
+		| arithExpr '*' arithExpr
+		| arithExpr '/' arithExpr
+		| '+' arithExpr
+		| '-' arithExpr %prec NEG
+		| NUMBER
+		| var
+		| '(' arithExpr ')'
+		;
+
+boolExpr	: boolExpr OR boolExpr
+	 	| boolExpr AND boolExpr
+		| NOT boolExpr
+	 	| arithExpr GREATERTHAN arithExpr
+		| arithExpr GREATEREQ arithExpr
+		| arithExpr LESSTHAN arithExpr
+	 	| arithExpr LESSEQ arithExpr
+		| arithExpr EQUAL arithExpr
+		| arithExpr NOTEQ arithExpr
 		;
 
 	
