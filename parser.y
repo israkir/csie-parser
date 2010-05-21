@@ -17,34 +17,33 @@
  =============================================================================
  */
  
+%defines
 	/* ----- DEFINITIONS PART ----- */
 	/* ============================ */
 %{
-  #define YYSTYPE double
-  #include <math.h>
-  #include <stdio.h>
+	#include <stdio.h>
+	extern int yylineno;
+	extern int yyparse();
 %}
 
-%token ID NUMBER INTSYM IFSYM ELSESYM WHILESYM BREAKSYM CONTINUESYM SCANSYM PRINTSYM GREATERTHAN GREATEREQ LESSTHAN LESSEQ EQUAL NOTEQ
-%nonassoc '{' '}' '[' ']' ';' ','
+%token ID NUMBER INTSYM IFSYM ELSESYM WHILESYM BREAKSYM CONTINUESYM SCANSYM PRINTSYM
 %right '='
 %left OR
 %left AND
+%left EQUAL NOTEQ
+%left GREATERTHAN GREATEREQ LESSTHAN LESSEQ
 %left '+' '-'
 %left '*' '/'
-%right NOT
-%left '(' ')'
-%right NEG
+%right POS NEG NOT
 
 
 %%	/* ----- GRAMMAR RULES PART ----- */
 	/* ============================== */
 
-program		: /* lambda */
-		| program blockStmt
+program		: blockStmt
 		;
 			
-blockStmt	: '{' varDeclInit stmtInit '}'
+blockStmt	: '{' varDeclInit stmtList '}' 
 		;
 
 varDeclInit	: /* lambda */
@@ -66,6 +65,10 @@ varList		: /* lambda */
 	 	| ',' var varList
 	 	;
 
+stmtList	: /* lambda */
+      		| stmt stmtList
+      		;
+
 arithExprInit	: /* lambda */
 	      	| '[' arithExpr ']' arithExprInit
 		;
@@ -74,23 +77,22 @@ arithExprList	: /* lambda */
 	      	| ',' arithExpr arithExprList
 	      	;
 
-stmtInit	: /* lambda */
-      		| var '=' arithExpr ';' stmtInit
-		| IFSYM '(' boolExpr ')' blockStmt stmtInit
-		| IFSYM '(' boolExpr ')' blockStmt ELSESYM blockStmt stmtInit
-		| WHILESYM '(' boolExpr ')' blockStmt stmtInit
-		| BREAKSYM ';' stmtInit
-		| CONTINUESYM ';' stmtInit
-		| SCANSYM '(' var varList ')' ';' stmtInit
-		| PRINTSYM '(' arithExpr arithExprList ')' ';' stmtInit
-		| blockStmt stmtInit
+stmt		: var '=' arithExpr ';'
+		| IFSYM '(' boolExpr ')' blockStmt
+		| IFSYM '(' boolExpr ')' blockStmt ELSESYM blockStmt
+		| WHILESYM '(' boolExpr ')' blockStmt
+		| BREAKSYM ';'
+		| CONTINUESYM ';'
+		| SCANSYM '(' var varList ')' ';'
+		| PRINTSYM '(' arithExpr arithExprList ')' ';'
+		| blockStmt
 		;
 		
 arithExpr	: arithExpr '+' arithExpr
 		| arithExpr '-' arithExpr
 		| arithExpr '*' arithExpr
 		| arithExpr '/' arithExpr
-		| '+' arithExpr
+		| '+' arithExpr %prec POS
 		| '-' arithExpr %prec NEG
 		| NUMBER
 		| var
@@ -118,4 +120,13 @@ boolExpr	: boolExpr OR boolExpr
 yyerror(const char *msg)
 {
 	printf("Fail (around line %d)\n", yylineno);
+}
+
+main()
+{
+	int ret = yyparse();
+	if (ret == 0)
+		puts("Pass");
+	return 0;
+
 }
